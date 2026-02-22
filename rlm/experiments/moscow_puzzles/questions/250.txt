@@ -1,0 +1,18 @@
+SELECT FOUR WORDS
+
+BE
+OAK
+ROOM
+IDEAL
+SCHOOL
+KITCHEN
+OVERCOAT
+REVOLVING
+DEMOCRATIC
+ENTERTAINER
+MATHEMATICAL
+SPORTSMANSHIP
+KINDERGARTENER
+INTERNATIONALLY
+
+The words run from 2 to 15 letters. Choose four different words with a, b, c and d letters, such that a^2 = b * d and a * d = b^2 * c

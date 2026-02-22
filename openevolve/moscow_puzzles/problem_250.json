@@ -1,0 +1,8 @@
+{
+  "number": 250,
+  "title": "Select Four Words",
+  "text": "BE\n        OAK\n        ROOM\n        IDEAL\n        SCHOOL\n        KITCHEN\n        OVERCOAT\n        REVOLVING\n        DEMOCRATIC\n        ENTERTAINER\n        MATHEMATICAL\n        SPORTSMANSHIP\n        KINDERGARTENER\n        INTERNATIONALLY\n        \n        The words run from 2 to 15 letters.\n    \n    - **Objective**: Choose four different words with a, b, c and d letters, such that a^2 = b * d and a * d = b^2 * c\n",
+  "answer_text": "School, oak, overcoat, mathematical. Multiply the left and right sides of the given equations:\na^3*d = b^3*d*c, or a^3 = b^3*c\n   It follows that c must be a cube of an integer. The only cube from 2 through 15 is 8, so c = 8,\nand a^3 = 8*b^3, or a = 2*b.\n   Substituting in the first given equation, 4*b^2 = b*d, or 4*b = d. In the given range of numbers, b\nmust equal 2 or 3, and d must equal 8 or 12. Since c already is 8, d is 12 and b is 3. Then a - 2*b = 6.\n",
+  "images": [],
+  "answer_images": []
+}
