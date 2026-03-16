@@ -1,0 +1,42 @@
+{
+  "question_page": "000119",
+  "number": 252,
+  "title": "AN ELEPHANT AND A MOSQUITO",
+  "question": [
+    {
+      "type": "text",
+      "value": "Does the weight of an elephant equal the weight of a mosquito? Let x be the weight of an elephant, and y that of a mosquito. Call the sum of the two weights 2v, then x + y = 2v,"
+    },
+    {
+      "type": "text",
+      "value": "From this equation we can obtain two more: x -2v=-y; x =- y+ 2v, Multiply: x^2 - 2vx = y^2 - 2vy. Add v^2: x^2 - 2vx + v^2 = y^2 - 2vy + v^2, or (x -v)^2 =(y-v)^2, Take square roots: x-v=y-v, x=y."
+    },
+    {
+      "type": "text",
+      "value": "That is, the elephant's weight (x) equals the mosquito's weight (y)."
+    },
+    {
+      "type": "text",
+      "value": "What is wrong here?"
+    }
+  ],
+  "answer_page": "000280",
+  "answer": [
+    {
+      "type": "text",
+      "value": "The wrong square root of (y - v)^2 was used. According to the conditions of the problem, it should have been -(y - v); not (y - v): x-v= -(y-v); x+y=2v"
+    },
+    {
+      "type": "text",
+      "value": "Note that (x - v) (an elephant minus a half-elephant, half-mosquito) is positive, while (y - v) is negative. If numbers had been used, you would have seen the fallacy, for example, of:"
+    },
+    {
+      "type": "text",
+      "value": "81= 81;"
+    },
+    {
+      "type": "text",
+      "value": "9=-9."
+    }
+  ]
+}

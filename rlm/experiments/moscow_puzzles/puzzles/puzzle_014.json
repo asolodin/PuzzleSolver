@@ -1,0 +1,38 @@
+{
+  "question_page": "000019",
+  "number": 14,
+  "title": "CORRECT THE ERROR",
+  "question": [
+    {
+      "type": "text",
+      "value": "With 12 matches form the equation shown."
+    },
+    {
+      "type": "photo",
+      "image_path": "data/work/images/page_0019.jp2",
+      "bbox": [
+        826,
+        1895,
+        3238,
+        2467
+      ],
+      "box_drawing": "VI - IV = IX",
+      "description": "A matchstick equation using Roman numerals is shown. It reads \"VI - IV = IX\" with a single minus sign and a double-line equals sign. The numerals and the minus and the equals signs are formed from matchsticks."
+    },
+    {
+      "type": "text",
+      "value": "The equation shows that 6 - 4 = 9. Correct it by shifting just 1 match. Not other match may be moved."
+    }
+  ],
+  "answer_page": "000202",
+  "answer": [
+    {
+      "type": "text",
+      "value": "Two solutions are shown:"
+    },
+    {
+      "type": "text",
+      "value": "VI+IV=X V+IV=IX"
+    }
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "question_page": "000120",
+  "number": 254,
+  "title": "LIVE TO 100 WITHOUT AGING",
+  "question": [
+    {
+      "type": "text",
+      "value": "My age, which plus yours is 86, is 15/16 the age you will be when I am 9/16 the age you would be if you were twice as old as I will be when I am twice your age."
+    },
+    {
+      "type": "text",
+      "value": "How old am I and how old are you?"
+    },
+    {
+      "type": "text",
+      "value": "Solution: Work the problem to untangle the curlicues running through it."
+    },
+    {
+      "type": "text",
+      "value": "1. One day I will be 2x and you will be x. (See first diagram.)"
+    },
+    {
+      "type": "photo",
+      "image_path": "data/work/images/page_0120.jp2",
+      "bbox": [
+        1114,
+        3333,
+        2774,
+        3758
+      ],
+      "box_drawing": "┏━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┓\n┃<------ 2x ------->┃<-  x  -> ┃\n┗━━━━━━━━━━━━━━━━━━━━┻━━━━━━━━━━┛\n        me                you",
+      "description": "A long horizontal bar is divided into two segments by a vertical divider. The left segment is labeled \"2x\" with arrows and corresponds to \"me\" underneath. The right segment is labeled \"x\" with arrows and corresponds to \"you\" underneath."
+    },
+    {
+      "type": "text",
+      "value": "It follows that I am always older than you by x years. 2. When you are twice 2x I am 5x, and when I am 9/16 of your 4x, I am (2 1/4) x"
+    },
+    {
+      "type": "text",
+      "value": "and you are (1 1/4)x (second diagram)."
+    },
+    {
+      "type": "photo",
+      "image_path": "data/work/images/page_0120.jp2",
+      "bbox": [
+        1096,
+        4214,
+        2912,
+        4609
+      ],
+      "box_drawing": "┌───────────────┬─────────┐\n│   2 1/4 x      │ 1 1/4 x │\n└───────────────┴─────────┘\n       me              you",
+      "description": "A single horizontal bar is split into two adjacent segments by a vertical divider. The left segment is labeled \"me\" and has length marked as 2 1/4 x. The right segment is labeled \"you\" and has length marked as 1 1/4 x. Arrowed dimension lines above indicate each segment’s extent."
+    },
+    {
+      "type": "text",
+      "value": "3. When I am 15/16 of your 1%x, I am 75x/64 ang you are 11x/64 (third diagram)."
+    },
+    {
+      "type": "text",
+      "value": "75. if had 67 me N you"
+    },
+    {
+      "type": "text",
+      "value": "Our ages add to 86, so right now I am 75 and you are 11, according to the problem. Actually, | am a long way from 75, and you are probably older than 11. But if I am twice as old as you were when I was your age, and when you are my age the sum of our ages will be 63, how old am I now and how old are you?"
+    }
+  ],
+  "answer_page": "000280",
+  "answer": [
+    {
+      "type": "text",
+      "value": "If my age is AB and yours is CD, then segment KB shows how long ago my age equaled your present age. But your age then was less by ND = KB and equaled CN, which is half AB."
+    },
+    {
+      "type": "photo",
+      "image_path": "data/work/images/page_0280.jp2",
+      "bbox": [
+        1159,
+        2407,
+        2906,
+        2817
+      ],
+      "box_drawing": "\nA-----------------M------K---B\n                  |      |\nC-----------------N------D",
+      "description": "Two horizontal segments are drawn, one above the other. The top segment runs from A at the left to B at the right, with points M and K marked along it. The bottom segment runs from C at the left to D at the right, with point N marked on it. A dashed vertical line connects M down to N. Another dashed vertical line drops from K down to point D."
+    },
+    {
+      "type": "text",
+      "value": "Since ND = MK = KB, then MB = 2KB, AB = 4KB, and CD = 3KB."
+    },
+    {
+      "type": "text",
+      "value": "When you are as old as I am now, your age will be represented by a segment equal to AB, which contains KB four times. By then my age will increase by KB and will be represented by a segment containing KB five times. Since 4KB = 5KB = 63, segment KB represents 7 years. You are 21 and I am 28. Seven years ago you were 14, half my present age."
+    }
+  ]
+}

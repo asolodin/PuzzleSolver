@@ -1,0 +1,62 @@
+# Evolution settings
+max_iterations: 20
+checkpoint_interval: 2
+parallel_evaluations: 1
+diff_based_evolution: true
+
+# LLM configuration for OpenEvolve mutation itself
+llm:
+  api_base: "https://api.openai.com/v1"
+  models:
+    - name: "gpt-5.2"
+      weight: 1.0
+  evaluator_models:
+    - name: "gpt-5.4"
+      weight: 1.0
+  temperature: 0.7
+  max_tokens: 8000
+  timeout: 120
+  api_key:
+
+# MAP-Elites configuration
+database:
+  population_size: 30
+  num_islands: 4
+  migration_interval: 20
+  feature_dimensions:
+    - "accuracy"
+    - "avg_tokens"
+    - "avg_latency_s"
+    - "finalization_fail_rate"
+
+# Evaluation settings
+evaluator:
+  timeout: 1800
+  max_retries: 1
+  cascade_evaluation: false
+
+prompt:
+  system_message: |
+    You are evolving an RLM AGENT POLICY, not a direct puzzle solver.
+    The candidate program exposes build_policy() and returns a policy dictionary.
+    Improve reliability first, then efficiency.
+
+    Primary objective: increase combined_score from evaluator.
+    combined_score rewards correctness and penalizes token cost, latency, excess iterations,
+    and non-programmatic finalization failures.
+
+    Keep the policy concise and robust across many puzzles.
+    Make targeted edits to prompt templates, stopping rules, budgets, and weights.
+    Avoid brittle overfitting to one puzzle.
+
+  # Enable co-evolution of code plus textual policy description channel
+  programs_as_changes_description: true
+  initial_changes_description: |
+    1. Baseline policy with explicit prompt template, stage budgets, and score weights.
+    2. Reliability-first objective: correctness dominates efficiency penalties.
+    3. Finalization preference for FINAL_VAR.
+  num_top_programs: 3
+  num_diverse_programs: 2
+
+log_level: "INFO"
+

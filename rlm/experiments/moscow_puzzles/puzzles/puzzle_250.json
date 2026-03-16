@@ -1,0 +1,50 @@
+{
+  "question_page": "000118",
+  "number": 250,
+  "title": "SELECT FOUR WORDS",
+  "question": [
+    {
+      "type": "text",
+      "value": "BE"
+    },
+    {
+      "type": "text",
+      "value": "OAK"
+    },
+    {
+      "type": "text",
+      "value": "ROOM"
+    },
+    {
+      "type": "text",
+      "value": "IDEAL"
+    },
+    {
+      "type": "text",
+      "value": "SCHOOL"
+    },
+    {
+      "type": "text",
+      "value": "KITCHEN OVERCOAT REVOLVING DEMOCRATIC ENTERTAINER MATHEMATICAL SPORTSMANSHIP KINDERGARTENER INTERNATIONALLY"
+    },
+    {
+      "type": "text",
+      "value": "The words run from 2 through 15 letters. Choose four different words with a, b, c, and d letters so that a^2 = b*d and a*d = b^2*c."
+    }
+  ],
+  "answer_page": "000278",
+  "answer": [
+    {
+      "type": "text",
+      "value": "School, oak, overcoat, mathematical. Multiply the left and right sides of the given equations: a^3*d=b^3*d*c or a^3=b^3*c"
+    },
+    {
+      "type": "text",
+      "value": "It follows that c must be a cube of an integer. The only cube from 2 through 15 is 8, so c = 8, and a^3 = 8b^3, or a = 2b."
+    },
+    {
+      "type": "text",
+      "value": "Substituting in the first given equation, 4b^2 = bd, or 4b = d. In the given range of numbers, b must equal 2 or 3, and d must equal 8 or 12. Since c already is 8,d is 12 and b is 3. Then a = 2b = 6."
+    }
+  ]
+}

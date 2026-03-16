@@ -1,0 +1,34 @@
+{
+  "question_page": "000133",
+  "number": 286,
+  "title": "AN EVEN NUMBER WINS",
+  "question": [
+    {
+      "type": "text",
+      "value": "Two players pick up 1 through 4 of 27 matches until they are all picked up. You are the first player. To win, you must have an even number of matches at the end. How do you win this game?"
+    }
+  ],
+  "answer_page": "000291",
+  "answer": [
+    {
+      "type": "text",
+      "value": "The strategy is more complicated than before. Take 2 matches, and then:"
+    },
+    {
+      "type": "text",
+      "value": "If your opponent takes an even number of matches, leave him a number that is larger by 1 than a multiple of 6 (19, 13, 7)."
+    },
+    {
+      "type": "text",
+      "value": "If he takes an odd number, leave him a number that is smaller by 1 than a multiple of 6 (23, 17, 11, 5)."
+    },
+    {
+      "type": "text",
+      "value": "If this is impossible, leave him a number that is a multiple of 6 (24, 18, 12, 6). For example, you take 2 and he takes 3, leaving 22. You can't take 5 (leaving 17), so you take 4 (leaving 18)."
+    },
+    {
+      "type": "text",
+      "value": "See if you can prove on your own that this strategy wins."
+    }
+  ]
+}

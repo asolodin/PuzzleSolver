@@ -1,0 +1,22 @@
+{
+  "question_page": "000133",
+  "number": 285,
+  "title": "WINNER PICKS UP THE LAST MATCH",
+  "question": [
+    {
+      "type": "text",
+      "value": "You pick up 1 through 6 of 30 matches. The second player picks up 1 through 6 matches, and so on. The player who picks up the last match wins. How do you get to pick up the last match?"
+    }
+  ],
+  "answer_page": "000291",
+  "answer": [
+    {
+      "type": "text",
+      "value": "Again working backward, you win if you leave him 7 matches. If he picks up 1, 2, 3, 4, 5, 6 matches, you pick up all the rest."
+    },
+    {
+      "type": "text",
+      "value": "Before that, leave him 14 matches; before that, 21; and, before that, 28. Pick up 2 matches the first time."
+    }
+  ]
+}

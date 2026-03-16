@@ -1,0 +1,22 @@
+{
+  "question_page": "000118",
+  "number": 249,
+  "title": "NEW STATIONS",
+  "question": [
+    {
+      "type": "text",
+      "value": "Every station on the N railroad sells tickets to every other station. When it added"
+    },
+    {
+      "type": "text",
+      "value": "some new Stations, 46 additional sets of tickets had to be printed. How many is \"some\"? How many stations were there before?"
+    }
+  ],
+  "answer_page": "000278",
+  "answer": [
+    {
+      "type": "text",
+      "value": "If y stations are added to x already existing stations each new station will require (x + y - 1) sets of tickets: for y new stations this is y(x + y - 1) sets. Each old station needs y sets so: y(x+y-1)+xy = 46, or y(2x + y - 1) = 46. Thus y must be a positive integer which is a factor of 46: it is 1, 2, 23, or 46. \"Some new stations\" cannot be 1 station, and 23 and 46 give a minus number of old stations, so y = 2 and x= 11."
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "question_page": "000152",
+  "number": 317,
+  "title": "A REMARKABLE MEMORY",
+  "question": [
+    {
+      "type": "text",
+      "value": "When a friend writes a three-digit number, you quickly add three or even six more digits so that the resulting six- or nine-digit number will be divisible by 37."
+    },
+    {
+      "type": "text",
+      "value": "Suppose he writes 412. Add 143 on the left or right to form 143,412 or 412,143. Both numbers are divisible by 37."
+    },
+    {
+      "type": "text",
+      "value": "The explanation does not lie in your remarkable phenomenal memory for numbers divisible by 37. You may have a most ordinary memory, but you do know a simple test of divisibility by 37:"
+    },
+    {
+      "type": "text",
+      "value": "Separate a number from right to left into groups of three digits (the last group on the left may be incomplete). Consider each group an independent number. Add the numbers. If the sum is divisible by 37, the entire number is divisible by 37. For example, 153,217 is divisible by 37 because 153 + 217 = 370, and 370 is divisible by 37."
+    },
+    {
+      "type": "text",
+      "value": "On your own, prove this. (Hint: 37 is a factor of 999 = 10^3 - 1.)"
+    },
+    {
+      "type": "text",
+      "value": "To do the trick rapidly, note that 111, 222, 333, ... 999 are all divisible by 37. You tacked 143 onto your friend's 412 because they add to 555. If he chose 341, you would add 103, or 214, or 325, and so on."
+    },
+    {
+      "type": "text",
+      "value": "To make a nine-digit number, pretend you are making a six-digit number and split the three-digit \"tack\" in two. Instead of adding 325 onto 341, add 203 and 122 (sum 325): 203,341,122, which is divisible by 37."
+    },
+    {
+      "type": "text",
+      "value": "Prove that a nine-digit number whose three triplets of digits have a sum of the form AAA (three identical digits) is divisible by 37."
+    }
+  ],
+  "answer_page": "000299",
+  "answer": [
+    {
+      "type": "text",
+      "value": "Let n be the nine-digit number, and write it as: N=10^6 * a + 10^3 * b + c where a, b, and c are the three triplets of digits. We know that a + b + c is divisible by 37. Let a+b+c= 37k. We can now write: N =10^6 * a + 10^3 * b + 37k -a-b =a(10^6 - 1) + b(10^3 - 1) + 37k. Since each of these three terms is divisible by 37, N is divisible by 37."
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "question_page": "000133",
+  "number": 284,
+  "title": "ELEVEN MATCHES",
+  "question": [
+    {
+      "type": "text",
+      "value": "On the table are 11 matches (or other objects). The first player picks up 1, 2, or 3 matches. The second player picks up 1, 2, or 3, and so on. The player who picks up the last match loses."
+    },
+    {
+      "type": "text",
+      "value": "(A) Can the first player always win?"
+    },
+    {
+      "type": "text",
+      "value": "(B) Can he if there are 30 matches instead of 11?"
+    },
+    {
+      "type": "text",
+      "value": "(C) Can he in general, with n matches to be picked up 1 through p at a time (p not greater than n)?"
+    }
+  ],
+  "answer_page": "000291",
+  "answer": [
+    {
+      "type": "text",
+      "value": "(A) Yes. Start from the end. To leave 1 match on your last play is to win. The play before, 5 is the number to leave. He picks up 1, 2, or 3; you pick up 3, 2, or 1, and leave him 1."
+    },
+    {
+      "type": "text",
+      "value": "Before 5, you should leave him 9. Whether he picks up I, 2, or 3, you can leave him 5, and so on."
+    },
+    {
+      "type": "text",
+      "value": "So, on the first play, pick up 2 matches, leaving 9."
+    },
+    {
+      "type": "text",
+      "value": "(B) Yes. Extend the series by 4s: 1, 5, 9, 13, 17, 21, 25, 29. On the first play, pick up 1 match, leaving him 29. Then leave him 25, 21, and so on."
+    },
+    {
+      "type": "text",
+      "value": "(C) No. You may have to start with a number of matches you would like to leave the other player, and unless he makes a mistake he can win just as you would."
+    },
+    {
+      "type": "text",
+      "value": "You want to leave him 1, p + 2, 2p + 3, 3p + 4 and so on-working backward, of course, to the number in the series, of those not more than n, that is largest-call it N. If N is not n, play (n - N) matches the first time, and win. But if N is n, the second player can win."
+    }
+  ]
+}

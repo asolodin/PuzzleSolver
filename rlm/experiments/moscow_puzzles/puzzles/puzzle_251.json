@@ -1,0 +1,98 @@
+{
+  "question_page": "000119",
+  "number": 251,
+  "title": "FAULTY SCALES",
+  "question": [
+    {
+      "type": "photo",
+      "image_path": "data/work/images/page_0119.jp2",
+      "bbox": [
+        2001,
+        450,
+        3361,
+        1068
+      ],
+      "box_drawing": "  ┌─────────┐      ↑      ┌─────────┐\n  │ ─┬─┬─┬─ │      │      │ ─┬─┬─┬─ │\n  └────┬────┘      │      └────┬────┘\n       │           │           │\n       ├───────────┼───────────┤\n       │           │           │\n      ←──── a ────→│←──── b ────→",
+      "description": "A balance scale with two pans on a horizontal beam and a central upright pointer. The left and right pans sit on vertical supports connected to the beam. A central pivot is shown where the pointer meets the beam. Double-headed arrows under the beam label the left arm length as 'a' and the right arm length as 'b'."
+    },
+    {
+      "type": "text",
+      "value": "Good scales should have equal arms (a = b in the picture), but in one grocery stall they didn't. Pending replacement, the manager wondered if he could give correct weight this way:"
+    },
+    {
+      "type": "text",
+      "value": "\"I'll balance a 1-pound weight on the left with sugar on the right, and then I'll balance the 1-pound weight on the right with some more sugar on the left, and the sugar will add up to exactly 2 pounds.\""
+    },
+    {
+      "type": "text",
+      "value": "Will it? Is there another way?"
+    }
+  ],
+  "answer_page": "000279",
+  "answer": [
+    {
+      "type": "text",
+      "value": "When the pans balance, then whether or not the scales are even armed this equation holds:"
+    },
+    {
+      "type": "text",
+      "value": "a(p + m) = b(q +m), where a and b are the lengths of the arms, p and q are being weighed, and m is the weight of each pan (see diagram)."
+    },
+    {
+      "type": "photo",
+      "image_path": "data/work/images/page_0279.jp2",
+      "bbox": [
+        1420,
+        1186,
+        2564,
+        1621
+      ],
+      "box_drawing": "   p                   q\n __|__               __|__\n/     \\             /     \\\n\\_____/             \\_____/\n   |                   |\n   |                   |\n---+-------------------+---\n          |\n          |\n          ^\n<---- a ----> <---- b ---->",
+      "description": "A balance scale diagram with a central vertical support and a horizontal beam. Two pans hang from the left and right ends of the beam, labeled p on the left and q on the right. Below the beam, the arm lengths from the center to each side are marked a (left) and b (right) with arrows. The picture indicates possibly unequal arm lengths while the pans are level."
+    },
+    {
+      "type": "text",
+      "value": "Say x pounds of sugar and then y pounds of sugar are balanced against 1 pound of sugar, as described in the problem. Then:"
+    },
+    {
+      "type": "text",
+      "value": "a(1+m)=b(x + m), and a(y + m) = b(1 + m)."
+    },
+    {
+      "type": "text",
+      "value": "Therefore: x=(a+am-bm)/b, y=(b+bm-am)/a The sugar adds up to: x+y=a/b + b/a + m(a/b + b/a) - 2m"
+    },
+    {
+      "type": "text",
+      "value": "We will now show that the sum of any positive fraction a/b (where a is not equal to b) and its inverse, b/a is greater than 2. Since (a - b)^2 is positive: a^2 - 2ab + b^2 > 0 a^2 +b^2 > 2ab. Dividing each side by ab (which is positive): a/b + b/a > 2"
+    },
+    {
+      "type": "text",
+      "value": "Multiply by m (which is positive):"
+    },
+    {
+      "type": "text",
+      "value": "m(a/b + b/a) > 2m"
+    },
+    {
+      "type": "text",
+      "value": "It follows that:"
+    },
+    {
+      "type": "text",
+      "value": "m(a/b + b/a) - 2m > 0"
+    },
+    {
+      "type": "text",
+      "value": "and since: a/b + b/a > 2"
+    },
+    {
+      "type": "text",
+      "value": "it is easy to see, in the equation for the total weight of the sugar, that (x + y) must be greater than 2."
+    },
+    {
+      "type": "text",
+      "value": "To get proper weighing from faulty scales the sugar and weights must be on the same side of the scales! Well, not exactly, but you can put the 1-pound weight on the left pan and balance it with lead shot on the right pan. Then remove the 1-pound weight and add sugar till it balances the lead shot. Do it twice and you have 2 pounds of sugar."
+    }
+  ]
+}

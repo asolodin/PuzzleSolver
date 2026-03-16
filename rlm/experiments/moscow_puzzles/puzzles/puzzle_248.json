@@ -1,0 +1,26 @@
+{
+  "question_page": "000118",
+  "number": 248,
+  "title": "TWO DISPATCHES",
+  "question": [
+    {
+      "type": "text",
+      "value": "The first dispatch said: \"Train N passes me in t1 seconds.\" The second dispatch said: \"Train N crossed a bridge A yards long in t2 seconds.\" If train N's speed is constant, what is it, and how long is the train?"
+    }
+  ],
+  "answer_page": "000278",
+  "answer": [
+    {
+      "type": "text",
+      "value": "Let x be the train's length and y its speed. It passes the observer-that is, it covers a distance equal to its own length in t1, seconds:"
+    },
+    {
+      "type": "text",
+      "value": "y = x/t1 It crosses the bridge-that is, it covers a distance equal to the sum of its own length and a yards-in t2, seconds:"
+    },
+    {
+      "type": "text",
+      "value": "y=(x+A)/t1 Thus: x=A*t1/(t2-t1) , y=A/(t2-t1)"
+    }
+  ]
+}

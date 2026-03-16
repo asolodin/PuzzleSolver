@@ -963,10 +963,11 @@ wheels = [
 [[package]]
 name = "puzzlesolver"
 version = "0.1.0"
-source = { virtual = "." }
+source = { editable = "." }
 dependencies = [
     { name = "openai" },
     { name = "openevolve" },
+    { name = "python-dotenv" },
     { name = "rlms" },
 ]
 
@@ -974,7 +975,8 @@ dependencies = [
 requires-dist = [
     { name = "openai" },
     { name = "openevolve" },
-    { name = "rlms" },
+    { name = "python-dotenv" },
+    { name = "rlms", path = "lib/rlms-0.1.1-py3-none-any.whl" },
 ]
 
 [[package]]
@@ -1176,7 +1178,7 @@ wheels = [
 [[package]]
 name = "rlms"
 version = "0.1.1"
-source = { registry = "https://pypi.org/simple" }
+source = { path = "lib/rlms-0.1.1-py3-none-any.whl" }
 dependencies = [
     { name = "anthropic" },
     { name = "google-genai" },
@@ -1187,10 +1189,30 @@ dependencies = [
     { name = "requests" },
     { name = "rich" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/64/09/13fd4abcf935fbbfe33c06f14d2c814513ee43d4ff1e40f6aee51f8b2039/rlms-0.1.1.tar.gz", hash = "sha256:926487e3512526f27505a8306bcc2e20648991f99b232d9be6c5b76e8fec8731", size = 86341, upload-time = "2026-02-18T21:08:37.644Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/5c/a9/6538aec016b4e056c5553336a1b42134c108a9305db3e4ca8945dc00cebd/rlms-0.1.1-py3-none-any.whl", hash = "sha256:3dff7d40013065ef62d57deb50e2578ba658045829ed340f94de9b59a49d5369", size = 84370, upload-time = "2026-02-18T21:08:35.855Z" },
+    { filename = "rlms-0.1.1-py3-none-any.whl", hash = "sha256:013ca8a49c312e1cd70127f9a4c2cee8da37f42f7a8f8adc28fc486cd6c029da" },
 ]
+
+[package.metadata]
+requires-dist = [
+    { name = "anthropic", specifier = ">=0.75.0" },
+    { name = "daytona", marker = "extra == 'daytona'", specifier = ">=0.128.1" },
+    { name = "dill", marker = "extra == 'daytona'", specifier = ">=0.3.7" },
+    { name = "dill", marker = "extra == 'e2b'", specifier = ">=0.3.7" },
+    { name = "dill", marker = "extra == 'modal'", specifier = ">=0.3.7" },
+    { name = "dill", marker = "extra == 'prime'", specifier = ">=0.3.7" },
+    { name = "e2b-code-interpreter", marker = "extra == 'e2b'", specifier = ">=0.0.11" },
+    { name = "google-genai", specifier = ">=1.56.0" },
+    { name = "modal", marker = "extra == 'modal'", specifier = ">=0.73.0" },
+    { name = "openai", specifier = ">=2.14.0" },
+    { name = "portkey-ai", specifier = ">=2.1.0" },
+    { name = "prime-sandboxes", marker = "extra == 'prime'", specifier = ">=0.2.0" },
+    { name = "pytest", specifier = ">=9.0.2" },
+    { name = "python-dotenv", specifier = ">=1.2.1" },
+    { name = "requests", specifier = ">=2.32.5" },
+    { name = "rich", specifier = ">=13.0.0" },
+]
+provides-extras = ["modal", "e2b", "daytona", "prime"]
 
 [[package]]
 name = "rsa"

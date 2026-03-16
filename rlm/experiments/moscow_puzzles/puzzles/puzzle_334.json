@@ -1,0 +1,86 @@
+{
+  "question_page": "000164",
+  "number": 334,
+  "title": "THE MAGIC GAME OF 15S",
+  "question": [
+    {
+      "type": "text",
+      "value": "A square box contains blocks numbered from 1 through 15. There is an empty space. The usual way to play is to place the blocks in the box at random, then try to slide them around until the numbers are in consecutive order (first figure)."
+    },
+    {
+      "type": "photo",
+      "image_path": "data/work/images/page_0164.jp2",
+      "bbox": [
+        1593,
+        2503,
+        2555,
+        3474
+      ],
+      "box_drawing": "\n┌───────────────────────┐\n│[ 1][ 2][ 3][ 4]       │\n│[ 5][ 6][ 7][ 8]       │\n│[ 9][10][11][12]       │\n│[13][14][15][  ]       │\n└───────────────────────┘",
+      "description": "A 4x4 sliding-tile puzzle tray is shown. Fifteen numbered tiles (1–15) fill the first three rows and the first three positions of the last row in order. The bottom-right cell is an empty space. Each tile is drawn as a rounded square containing a circle with the number inside."
+    },
+    {
+      "type": "text",
+      "value": "This game is not very interesting. Its mathematical value can be enriched by introducing an additional requirement: Move the blocks until you form a magic square (the empty space is 0)."
+    },
+    {
+      "type": "text",
+      "value": "Arrange the blocks with 14 and 15 interchanged, as shown in the second figure. Try to obtain a magic square with constant 30 in no more than 50 moves."
+    },
+    {
+      "type": "photo",
+      "image_path": "data/work/images/page_0164.jp2",
+      "bbox": [
+        1659,
+        4166,
+        2498,
+        4909
+      ],
+      "box_drawing": "\n┌────┬────┬────┬────┐\n│  1 │  2 │  3 │  4 │\n├────┼────┼────┼────┤\n│  5 │  6 │  7 │  8 │\n├────┼────┼────┼────┤\n│  9 │ 10 │ 11 │ 12 │\n├────┼────┼────┼────┤\n│ 13 │ 15 │ 14 │  0 │\n└────┴────┴────┴────┘",
+      "description": "A 4x4 sliding-tile grid is shown with numbers 1 through 15 and one empty space represented as 0. The tiles are in order except the last row has 13, 15, 14, and the blank at the far right. This is the starting configuration with 14 and 15 swapped."
+    },
+    {
+      "type": "text",
+      "value": "A magic square can be formed from the layout of the first figure but it will not be the same as a magic square formed from the second. In fact, the second figure cannot be reached from the first. Half the possible positions are based on the first, half on the second, according to research done in the last half of the nineteenth century, when the \"15\" game was a craze throughout Europe."
+    },
+    {
+      "type": "text",
+      "value": "There is a curious way to determine whether a given position belongs to the family of the first figure or of the second. Lift pairs of blocks out of the box and exchange their positions before putting them back. It is not difficult to choose blocks so that you can establish consecutive order (the first figure) in rather few moves. If the number of moves required is even, the position was of the first family; if odd, of the second."
+    }
+  ],
+  "answer_page": "000304",
+  "answer": [
+    {
+      "type": "text",
+      "value": "Move these blocks in order: 12, 8, 4, 3, 2, 6, 10, 9, 13, 15, 14, 12, 8,4, 7, 10, 9, 14, 12, 8, 4, 7, 10, 9, 6, 2, 3, 10, 9, 6, 5, 1, 2, 3, 6, 5, 3, 2, 1, 13, 14, 3, 2, 1, 13, 14, 3, 12, 15, 3."
+    },
+    {
+      "type": "text",
+      "value": "Exactly 50 moves! While moving the blocks you may reach a different magic square, but I do not know a solution shorter than 50 moves."
+    },
+    {
+      "type": "photo",
+      "image_path": "data/work/images/page_0304.jp2",
+      "bbox": [
+        1222,
+        924,
+        2013,
+        1709
+      ],
+      "box_drawing": "┌────┬────┬────┬────┐\n│ 13 │  1 │  6 │ 10 │\n├────┼────┼────┼────┤\n│ 14 │  2 │  5 │  9 │\n├────┼────┼────┼────┤\n│    │ 12 │ 11 │  7 │\n├────┼────┼────┼────┤\n│  3 │ 15 │  8 │  4 │\n└────┴────┴────┴────┘",
+      "description": "A 4x4 grid of numbered tiles resembling a sliding puzzle. The top row reads 13, 1, 6, 10. The second row is 14, 2, 5, 9; the third row has a blank in the first cell then 12, 11, 7; the bottom row is 3, 15, 8, 4. Thick outer border and thinner internal dividers."
+    },
+    {
+      "type": "photo",
+      "image_path": "data/work/images/page_0304.jp2",
+      "bbox": [
+        2067,
+        942,
+        2852,
+        1697
+      ],
+      "box_drawing": "┌────┬────┬────┬────┐\n│  1 │  2 │  3 │  4 │\n├────┼────┼────┼────┤\n│ 13 │  5 │  6 │ 10 │\n├────┼────┼────┼────┤\n│ 14 │ 12 │ 11 │  9 │\n├────┼────┼────┼────┤\n│    │ 15 │  8 │  7 │\n└────┴────┴────┴────┘",
+      "description": "A 4x4 sliding-tile grid with numbered tiles and one blank space. Rows read: (1,2,3,4), (13,5,6,10), (14,12,11,9), (blank,15,8,7). The empty cell is in the bottom-left corner. Thick outer border and internal grid lines."
+    }
+  ]
+}

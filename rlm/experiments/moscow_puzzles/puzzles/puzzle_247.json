@@ -1,0 +1,46 @@
+{
+  "question_page": "000117",
+  "number": 247,
+  "title": "A SERGEANT TEACHES HIS SCOUTS",
+  "question": [
+    {
+      "type": "text",
+      "value": "Sergeant Semochkin uses every opportunity to teach his soldier-scouts observation"
+    },
+    {
+      "type": "text",
+      "value": "and sharpness. He will suddenly ask them: \"How many supports did the bridge have-the one we crossed today?\""
+    },
+    {
+      "type": "text",
+      "value": "Or he will set them a puzzle:"
+    },
+    {
+      "type": "text",
+      "value": "\"Say two of you have to cover the same distance. The first scout runs half the time and walks the second half. The second scout runs halfway there and walks the rest. Neither one runs or walks faster than the other."
+    },
+    {
+      "type": "text",
+      "value": "\"Who gets there first? If they walked and then ran, who would get there first?\""
+    }
+  ],
+  "answer_page": "000278",
+  "answer": [
+    {
+      "type": "text",
+      "value": "The first scout gets there first whether they run first or walk first."
+    },
+    {
+      "type": "text",
+      "value": "Say they run first. They both run half the distance. The second scout starts walking. But the first scout still has some running to do, because he runs farther in half the time than he walks in half the time. So he takes the lead. When he changes to walking the second scout is also walking, so the first scout doesn't lose the lead and he finishes first."
+    },
+    {
+      "type": "text",
+      "value": "Or say they walk first. They both walk half the time and-but it isn't necessary to finish the"
+    },
+    {
+      "type": "text",
+      "value": "proof this way. It is exactly the same race only done backward, so again the first scout finishes first."
+    }
+  ]
+}
