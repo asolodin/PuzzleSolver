@@ -22,7 +22,7 @@ from rlm.core.types import RLMChatCompletion
 from rlm.logger import RLMLogger
 
 EVALUATOR_DIR = Path(__file__).resolve().parent
-SRC_DIR = EVALUATOR_DIR.parents[2]
+SRC_DIR = EVALUATOR_DIR.parents[1]
 PROJECT_ROOT = SRC_DIR.parent
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
@@ -30,12 +30,16 @@ if str(SRC_DIR) not in sys.path:
 from puzzlesolver.shared import (  # noqa: E402
     LLMJudge,
     answer_key_text,
+    build_policy_system_prompt,
     detect_finalization_mode,
     format_question,
     question_text_only,
 )
 
 PUZZLES_DIR = PROJECT_ROOT / "rlm" / "experiments" / "moscow_puzzles" / "puzzles"
+DEFAULT_RLM_LOG_DIR = PROJECT_ROOT / "rlm" / "logs"
+RLM_LOG_DIR = Path(os.getenv("RLM_POLICY_LOG_DIR", str(DEFAULT_RLM_LOG_DIR)))
+RLM_LOG_DIR.mkdir(parents=True, exist_ok=True)
 
 STAGE_SPECS: list[tuple[str, int]] = [
     ("A", int(os.getenv("RLM_POLICY_STAGE_A_SIZE", "3"))),
@@ -54,6 +58,7 @@ ROOT_MODEL_NAME = os.getenv("RLM_POLICY_ROOT_MODEL", os.getenv("RLM_MODEL_NAME",
 JUDGE_MODEL_NAME = os.getenv(
     "RLM_POLICY_JUDGE_MODEL", os.getenv("RLM_JUDGE_MODEL", "gpt-5.4")
 )
+SYSTEM_PROMPT_DELTA_MAX_CHARS = int(os.getenv("RLM_POLICY_SYSTEM_PROMPT_DELTA_MAX_CHARS", "1200"))
 
 
 def _normalize(value: float, scale: float) -> float:
@@ -114,7 +119,11 @@ def _run_single_puzzle(
     question_payload = json.dumps(format_question(puzzle), indent=2)
     prompt = prompt_template.format(question=question_payload)
     root_prompt_suffix = str(policy.get("root_prompt_suffix", "")).strip() or None
-    custom_system_prompt = str(policy.get("custom_system_prompt", "")).strip() or None
+    system_delta = policy.get("custom_system_prompt_delta", policy.get("custom_system_prompt", ""))
+    custom_system_prompt = build_policy_system_prompt(
+        str(system_delta),
+        max_delta_chars=SYSTEM_PROMPT_DELTA_MAX_CHARS,
+    )
 
     rlm = RLM(
         backend="openai",
@@ -130,7 +139,7 @@ def _run_single_puzzle(
         },
         max_depth=max_depth,
         max_iterations=max_iterations,
-        logger=RLMLogger(),  # In-memory trajectory capture for metrics.
+        logger=RLMLogger(log_dir=str(RLM_LOG_DIR), file_name="rlm_policy_eval"),
         verbose=False,
         custom_system_prompt=custom_system_prompt,
     )
@@ -319,4 +328,3 @@ def evaluate(program_path: str) -> dict[str, Any]:
     metrics["stage_metrics_json"] = json.dumps(stage_metrics)
     metrics["sample_records_json"] = json.dumps(all_records[: min(5, len(all_records))])
     return metrics
-

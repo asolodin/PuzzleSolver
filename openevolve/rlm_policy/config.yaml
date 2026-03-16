@@ -40,6 +40,8 @@ prompt:
     You are evolving an RLM AGENT POLICY, not a direct puzzle solver.
     The candidate program exposes build_policy() and returns a policy dictionary.
     Improve reliability first, then efficiency.
+    Keep the base RLM system prompt scaffold fixed.
+    Only modify policy-level controls and `custom_system_prompt_delta`.
 
     Primary objective: increase combined_score from evaluator.
     combined_score rewards correctness and penalizes token cost, latency, excess iterations,
@@ -59,4 +61,3 @@ prompt:
   num_diverse_programs: 2
 
 log_level: "INFO"
-

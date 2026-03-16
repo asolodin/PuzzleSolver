@@ -15,7 +15,9 @@ It does **outer-loop** evolution:
 - `src/puzzlesolver/openevolve/rlm_policy_evaluator.py`: staged RLM+judge evaluation and scoring
 - `config.yaml`: OpenEvolve config with MAP-Elites dimensions
 - `run_evolution.sh`: convenience launcher
-- `src/puzzlesolver/rlm_shared.py`: shared formatting/judging/finalization logic (also used by baseline quickstart)
+- `src/puzzlesolver/shared.py`: shared formatting/judging/finalization logic (also used by baseline runner)
+
+`custom_system_prompt_delta` is evolvable, while evaluator prepends a fixed non-evolvable scaffold.
 
 ## Run
 

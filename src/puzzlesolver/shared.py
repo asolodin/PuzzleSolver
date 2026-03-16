@@ -10,8 +10,17 @@ import re
 from typing import Any
 
 from rlm.clients import get_client
+from rlm.utils.prompts import RLM_SYSTEM_PROMPT
 
 FINAL_TAG_PATTERN = re.compile(r"^\s*FINAL(?:_VAR)?\(.*\)\s*$", re.MULTILINE | re.DOTALL)
+
+RLM_POLICY_FIXED_SYSTEM_SCAFFOLD = """
+You are running inside an automated benchmark harness, not a human chat.
+Treat the prompt as programmatic task input.
+Always inspect the full `context` first, then solve using REPL/tool calls.
+Prefer FINAL_VAR when you computed a concrete result in REPL.
+Do not replace a computed symbolic/programmatic result with a regenerated natural-language guess.
+""".strip()
 
 JUDGE_SYSTEM_PROMPT = """
 You are a strict evaluator for puzzle answers.
@@ -228,3 +237,30 @@ class LLMJudge:
                 "reasoning": "Judge call failed.",
             }
 
+
+def _escape_prompt_fragment(fragment: str) -> str:
+    """
+    Escape braces in appended fragments so `str.format(custom_tools_section=...)`
+    used by RLM does not treat them as format placeholders.
+    """
+    return fragment.replace("{", "{{").replace("}", "}}")
+
+
+def build_policy_system_prompt(
+    custom_system_prompt_delta: str | None,
+    max_delta_chars: int = 1200,
+) -> str:
+    """
+    Build a system prompt as:
+      fixed RLM scaffold + fixed policy scaffold + bounded evolvable delta.
+
+    The base RLM scaffold stays fixed; evolution can only change `custom_system_prompt_delta`.
+    """
+    delta = str(custom_system_prompt_delta or "").strip()
+    if max_delta_chars > 0 and len(delta) > max_delta_chars:
+        delta = delta[:max_delta_chars].rstrip()
+
+    pieces = [RLM_SYSTEM_PROMPT.rstrip(), _escape_prompt_fragment(RLM_POLICY_FIXED_SYSTEM_SCAFFOLD)]
+    if delta:
+        pieces.append("Additional policy hints:\n" + _escape_prompt_fragment(delta))
+    return "\n\n".join(pieces)

@@ -20,8 +20,10 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+from dotenv import load_dotenv
 from openevolve.cli import main as openevolve_main
 
+load_dotenv()
 
 def _default_paths() -> list[str]:
     here = Path(__file__).resolve()

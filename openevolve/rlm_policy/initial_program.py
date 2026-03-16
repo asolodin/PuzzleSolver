@@ -24,8 +24,12 @@ def build_policy() -> dict[str, Any]:
             "Remember: your first task is to examine the context and understand the question. "
             "Do not respond with ERROR until you have seen the full question."
         ),
-        # Empty string means "use default RLM system prompt", matching quickstart baseline.
-        "custom_system_prompt": "",
+        # Evolvable delta; evaluator prepends a fixed non-evolvable scaffold.
+        "custom_system_prompt_delta": (
+            "The task input is from an automated harness, not a user chat. "
+            "Inspect context early. Keep REPL state clean. "
+            "When a definitive variable exists, finalize with FINAL_VAR."
+        ),
         "max_depth": 1,
         "max_iterations": 10,
         "stage_budgets": {
