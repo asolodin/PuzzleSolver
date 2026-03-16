@@ -51,8 +51,9 @@ prompt:
     Make targeted edits to prompt templates, stopping rules, budgets, and weights.
     Avoid brittle overfitting to one puzzle.
 
-  # Enable co-evolution of code plus textual policy description channel
-  programs_as_changes_description: true
+  # Keep disabled for now: requiring diff updates to Changes Description caused
+  # candidates to be discarded when the model only edited code.
+  programs_as_changes_description: false
   initial_changes_description: |
     1. Baseline policy with explicit prompt template, stage budgets, and score weights.
     2. Reliability-first objective: correctness dominates efficiency penalties.
