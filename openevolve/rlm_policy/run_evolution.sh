@@ -19,4 +19,20 @@ else
   exit 1
 fi
 
-"$RUNNER" initial_program.py ../../src/puzzlesolver/openevolve/rlm_policy_evaluator.py --config config.yaml "$@"
+HAS_OUTPUT=0
+for ARG in "$@"; do
+  case "$ARG" in
+    --output|--output=*|-o)
+      HAS_OUTPUT=1
+      break
+      ;;
+  esac
+done
+
+if [ "$HAS_OUTPUT" -eq 1 ]; then
+  "$RUNNER" initial_program.py ../../src/puzzlesolver/openevolve/rlm_policy_evaluator.py --config config.yaml "$@"
+else
+  OUTPUT_DIR="openevolve_output_$(date +%Y%m%d_%H%M%S)"
+  echo "Using output directory: $OUTPUT_DIR"
+  "$RUNNER" initial_program.py ../../src/puzzlesolver/openevolve/rlm_policy_evaluator.py --config config.yaml --output "$OUTPUT_DIR" "$@"
+fi

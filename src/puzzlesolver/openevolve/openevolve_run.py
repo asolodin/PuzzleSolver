@@ -17,6 +17,7 @@ Behavior:
 
 from __future__ import annotations
 
+from datetime import datetime
 import sys
 from pathlib import Path
 
@@ -42,15 +43,33 @@ def _has_explicit_program_paths(args: list[str]) -> bool:
     return not args[0].startswith("-") and not args[1].startswith("-")
 
 
+def _has_output_flag(args: list[str]) -> bool:
+    for arg in args:
+        if arg in {"--output", "-o"}:
+            return True
+        if arg.startswith("--output="):
+            return True
+    return False
+
+
+def _default_output_dir() -> str:
+    here = Path(__file__).resolve()
+    project_root = here.parents[3]
+    stamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+    return str(project_root / "openevolve" / "rlm_policy" / f"openevolve_output_{stamp}")
+
+
 def main() -> int:
     args = sys.argv[1:]
     if _has_explicit_program_paths(args):
         return openevolve_main()
 
-    sys.argv = [sys.argv[0], *_default_paths(), *args]
+    injected_args = [sys.argv[0], *_default_paths()]
+    if not _has_output_flag(args):
+        injected_args.extend(["--output", _default_output_dir()])
+    sys.argv = [*injected_args, *args]
     return openevolve_main()
 
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

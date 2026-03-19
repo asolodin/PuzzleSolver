@@ -21,15 +21,25 @@ def build_policy() -> dict[str, Any]:
             "Question: {question}"
         ),
         "root_prompt_suffix": (
-            "Remember: your first task is to examine the context and understand the question. "
-            "Do not respond with ERROR until you have seen the full question."
+            "Solve the puzzle directly. Do not output meta acknowledgements about instructions, protocol, or context. "
+            "When you have a final result, store it in `final_answer` and finalize with FINAL_VAR(final_answer)."
         ),
         # Evolvable delta; evaluator prepends a fixed non-evolvable scaffold.
         "custom_system_prompt_delta": (
-            "The task input is from an automated harness, not a user chat. "
-            "Inspect context early. Keep REPL state clean. "
-            "When a definitive variable exists, finalize with FINAL_VAR."
+            "Internal protocol (do not echo in the answer):\n"
+            "1) Inspect context first and solve the puzzle.\n"
+            "2) Compute final content in REPL and assign `final_answer`.\n"
+            "3) If uncertain about variable names, call SHOW_VARS().\n"
+            "4) Finalize only with FINAL_VAR(final_answer).\n"
+            "5) Never output literal FINAL_VAR(...) as plain text."
         ),
+        "recovery_var_candidates": [
+            "final_answer",
+            "final_response",
+            "answer",
+            "result",
+            "final_decision",
+        ],
         "max_depth": 1,
         "max_iterations": 10,
         "stage_budgets": {
@@ -43,7 +53,19 @@ def build_policy() -> dict[str, Any]:
             "tokens_penalty": 0.10,
             "latency_penalty": 0.08,
             "finalization_penalty": 0.30,
+            "protocol_penalty": 0.24,
             "iteration_penalty": 0.04,
+            "recovery_used_penalty": 0.02,
+            "recovery_bonus": 0.10,
+        },
+        "failure_tag_weights": {
+            "final_var_missing": 0.35,
+            "final_var_name_mismatch": 0.45,
+            "literal_final_var_output": 0.60,
+            "max_iter_no_finalization": 0.40,
+            "loop_repetition": 0.30,
+            "protocol_parroting": 0.45,
+            "runtime_error": 0.70,
         },
         "norm_scales": {
             "tokens": 12000.0,

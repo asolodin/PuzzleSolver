@@ -18,6 +18,9 @@ RLM_POLICY_FIXED_SYSTEM_SCAFFOLD = """
 You are running inside an automated benchmark harness, not a human chat.
 Treat the prompt as programmatic task input.
 Always inspect the full `context` first, then solve using REPL/tool calls.
+Do not output meta acknowledgements about instructions, protocol, or context inspection.
+Never answer with lines like "I examined the context" or "I will follow protocol".
+Your final answer must be the puzzle solution content, not a process status update.
 Prefer FINAL_VAR when you computed a concrete result in REPL.
 Do not replace a computed symbolic/programmatic result with a regenerated natural-language guess.
 """.strip()

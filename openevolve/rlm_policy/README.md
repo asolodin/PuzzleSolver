@@ -41,6 +41,23 @@ export RLM_POLICY_STAGE_B_SIZE=7
 export RLM_POLICY_STAGE_C_SIZE=12
 ```
 
+Per-puzzle output persistence (enabled by default):
+
+```bash
+# default: openevolve/rlm_policy/openevolve_output/puzzle_outputs
+export RLM_POLICY_PUZZLE_OUTPUT_DIR="openevolve/rlm_policy/openevolve_output/puzzle_outputs"
+export RLM_POLICY_SAVE_PUZZLE_OUTPUTS=1
+```
+
+Each evaluated candidate now gets a unique run folder with:
+- `evaluation_meta.json`
+- `stage_A/puzzle_*.json`, `stage_B/puzzle_*.json`, etc.
+
+Evaluator diagnostics now include:
+- failure tag counts (`failure_tag_counts_json`)
+- compact failure examples (`failure_examples_json`)
+- recovery rates (`recovery_attempt_rate`, `recovery_success_rate`)
+
 Model control (fixed, not evolved):
 
 ```bash

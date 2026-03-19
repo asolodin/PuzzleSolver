@@ -41,14 +41,22 @@ prompt:
     The candidate program exposes build_policy() and returns a policy dictionary.
     Improve reliability first, then efficiency.
     Keep the base RLM system prompt scaffold fixed.
-    Only modify policy-level controls and `custom_system_prompt_delta`.
+    The evaluator currently runs in FAST DEMO mode:
+    only `root_prompt_suffix` and `custom_system_prompt_delta` materially affect fitness.
+    Prioritize protocol reliability: reduce literal FINAL_VAR outputs, variable-name mismatches,
+    missing FINAL_VAR finalization, and repeated-loop behavior.
+    Read and obey `hint_primary` from evaluator metrics. Treat it as the first objective.
 
     Primary objective: increase combined_score from evaluator.
     combined_score rewards correctness and penalizes token cost, latency, excess iterations,
-    and non-programmatic finalization failures.
+    non-programmatic finalization failures, and protocol failure tags.
+    Recovery metrics are provided; best policies make recovery unnecessary.
+    Hard gate is enabled: if protocol_parroting or literal_final_var_output occurs,
+    combined_score is capped near zero. Fix these first.
 
     Keep the policy concise and robust across many puzzles.
-    Make targeted edits to prompt templates, stopping rules, budgets, and weights.
+    Make targeted edits to `root_prompt_suffix` and `custom_system_prompt_delta`.
+    Do not add policy text that asks the solver to acknowledge instructions or state protocol compliance.
     Avoid brittle overfitting to one puzzle.
 
   # Keep disabled for now: requiring diff updates to Changes Description caused

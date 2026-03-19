@@ -1,14 +1,18 @@
 """
-Baseline RLM runner for Moscow puzzles.
+Configurable RLM runner for Moscow puzzles.
 
-This is the refactored entrypoint previously implemented in
-`rlm/experiments/quickstart.py`.
+Supports:
+- built-in baseline policy (preserved for baseline comparisons)
+- loading an evolved policy from an OpenEvolve `best_program.py` (build_policy)
 """
 
 from __future__ import annotations
 
+import argparse
+import importlib.util
 import json
 import os
+import re
 import sys
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -25,6 +29,7 @@ if str(SRC_DIR) not in sys.path:
 from puzzlesolver.shared import (  # noqa: E402
     LLMJudge,
     answer_key_text,
+    build_policy_system_prompt,
     detect_finalization_mode,
     format_question,
     question_text_only,
@@ -48,13 +53,30 @@ LOG_DIR.mkdir(parents=True, exist_ok=True)
 
 RLM_MODEL_NAME = os.getenv("RLM_MODEL_NAME", "gpt-5-mini")
 JUDGE_MODEL_NAME = os.getenv("RLM_JUDGE_MODEL", "gpt-5.4")
+RLM_EXECUTION_TIMEOUT_SECONDS = float(os.getenv("RLM_EXECUTION_TIMEOUT_SECONDS", "20"))
+RLM_MAX_DEPTH_DEFAULT = int(os.getenv("RLM_MAX_DEPTH", "1"))
+RLM_MAX_ITERATIONS_DEFAULT = int(os.getenv("RLM_MAX_ITERATIONS", "10"))
+SYSTEM_PROMPT_DELTA_MAX_CHARS = int(os.getenv("RLM_SYSTEM_PROMPT_DELTA_MAX_CHARS", "1200"))
 
-RLM_PROMPT = (
-    "Solve the following puzzle based on the following question. "
-    "The question may contain text and photos. For photos, a diagram and a text description may be provided. "
-    "For each iteration explain your reasoning step by step. "
-    "Question: {question}"
-)
+BASELINE_POLICY: dict[str, Any] = {
+    "name": "baseline_v1",
+    "root_prompt_template": (
+        "Solve the following puzzle based on the following question. "
+        "The question may contain text and photos. For photos, a diagram and a text description may be provided. "
+        "For each iteration explain your reasoning step by step. "
+        "Question: {question}"
+    ),
+    "root_prompt_suffix": (
+        "Remember: your first task is to examine the context and understand the question. "
+        "Do not respond with ERROR until you have seen the full question."
+    ),
+    "max_depth": 1,
+    "max_iterations": 10,
+}
+
+BUILTIN_POLICIES: dict[str, dict[str, Any]] = {
+    "baseline": BASELINE_POLICY,
+}
 
 logger = RLMLogger(log_dir=str(LOG_DIR))
 
@@ -94,7 +116,61 @@ class RunHooks:
         self.iteration_total_duration_s += float(duration)
 
 
-def create_rlm(run_hooks: RunHooks) -> RLM:
+def _safe_name(text: str) -> str:
+    cleaned = re.sub(r"[^a-zA-Z0-9_-]+", "_", text.strip())
+    cleaned = re.sub(r"_+", "_", cleaned).strip("_")
+    return cleaned or "run"
+
+
+def _load_policy_from_python_file(path: Path) -> dict[str, Any]:
+    if not path.exists():
+        raise FileNotFoundError(f"Policy file not found: {path}")
+
+    module_name = f"rlm_run_policy_{path.stem}_{int(path.stat().st_mtime_ns)}"
+    spec = importlib.util.spec_from_file_location(module_name, str(path))
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"Could not load policy module from: {path}")
+
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+
+    if not hasattr(module, "build_policy"):
+        raise RuntimeError(f"Policy module must define build_policy(): {path}")
+
+    policy = module.build_policy()
+    if not isinstance(policy, dict):
+        raise RuntimeError("build_policy() must return dict")
+    return policy
+
+
+def _resolve_policy(policy_name: str, policy_file: str | None) -> tuple[dict[str, Any], str]:
+    if policy_file:
+        path = Path(policy_file).expanduser()
+        if not path.is_absolute():
+            path = (Path.cwd() / path).resolve()
+        return _load_policy_from_python_file(path), str(path)
+
+    key = policy_name.strip().lower()
+    if key not in BUILTIN_POLICIES:
+        valid = ", ".join(sorted(BUILTIN_POLICIES.keys()))
+        raise ValueError(f"Unknown policy_name '{policy_name}'. Valid values: {valid}")
+    return dict(BUILTIN_POLICIES[key]), f"builtin:{key}"
+
+
+def create_rlm(run_hooks: RunHooks, policy: dict[str, Any]) -> RLM:
+    system_delta = str(
+        policy.get("custom_system_prompt_delta", policy.get("custom_system_prompt", ""))
+    ).strip()
+    custom_system_prompt = None
+    if system_delta:
+        custom_system_prompt = build_policy_system_prompt(
+            system_delta,
+            max_delta_chars=SYSTEM_PROMPT_DELTA_MAX_CHARS,
+        )
+
+    max_depth = int(policy.get("max_depth", RLM_MAX_DEPTH_DEFAULT))
+    max_iterations = int(policy.get("max_iterations", RLM_MAX_ITERATIONS_DEFAULT))
+
     return RLM(
         backend="openai",
         backend_kwargs={
@@ -103,13 +179,15 @@ def create_rlm(run_hooks: RunHooks) -> RLM:
         },
         environment="docker",
         environment_kwargs={
-            "execution_timeout_seconds": 20,
+            "execution_timeout_seconds": RLM_EXECUTION_TIMEOUT_SECONDS,
             "memory_limit": "4g",
             "cpu_limit": 4,
         },
-        max_depth=1,
+        max_depth=max_depth,
+        max_iterations=max_iterations,
         logger=logger,
         verbose=True,
+        custom_system_prompt=custom_system_prompt,
         on_subcall_start=run_hooks.on_subcall_start,
         on_subcall_complete=run_hooks.on_subcall_complete,
         on_iteration_start=run_hooks.on_iteration_start,
@@ -171,7 +249,9 @@ def collect_run_metrics(result: RLMChatCompletion, hooks: RunHooks) -> dict[str,
     }
 
 
-def summarize(records: list[dict[str, Any]]) -> dict[str, Any]:
+def summarize(
+    records: list[dict[str, Any]], policy_name: str, policy_source: str, run_id: str
+) -> dict[str, Any]:
     judged = [r for r in records if not r["judge"].get("skipped") and "error" not in r["judge"]]
     correct = [r for r in judged if r["judge"].get("is_correct")]
 
@@ -190,6 +270,9 @@ def summarize(records: list[dict[str, Any]]) -> dict[str, Any]:
 
     return {
         "timestamp": datetime.now().isoformat(),
+        "run_id": run_id,
+        "policy_name": policy_name,
+        "policy_source": policy_source,
         "rlm_model": RLM_MODEL_NAME,
         "judge_model": JUDGE_MODEL_NAME,
         "num_puzzles": len(records),
@@ -214,7 +297,31 @@ def summarize(records: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Run baseline/evolved RLM policies on puzzle set.")
+    parser.add_argument(
+        "--policy-name",
+        default="baseline",
+        help="Built-in policy name. Default: baseline",
+    )
+    parser.add_argument(
+        "--policy-file",
+        default=None,
+        help="Path to a Python file containing build_policy() (e.g. OpenEvolve best_program.py).",
+    )
+    parser.add_argument(
+        "--run-label",
+        default="",
+        help="Optional label for output folder/report naming.",
+    )
+    return parser.parse_args()
+
+
 def main() -> None:
+    args = parse_args()
+    policy, policy_source = _resolve_policy(args.policy_name, args.policy_file)
+    policy_name = str(policy.get("name", args.policy_name))
+
     judge = LLMJudge(
         JUDGE_MODEL_NAME,
         include_usage=True,
@@ -222,6 +329,16 @@ def main() -> None:
     )
     puzzle_paths = sorted(PUZZLES_DIR.glob("*.json"))
     records: list[dict[str, Any]] = []
+
+    run_stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    run_id = f"{run_stamp}_{_safe_name(args.run_label or policy_name)}"
+    run_answers_dir = ANSWERS_DIR / run_id
+    run_answers_dir.mkdir(parents=True, exist_ok=True)
+
+    prompt_template = str(policy.get("root_prompt_template", BASELINE_POLICY["root_prompt_template"]))
+    root_prompt_suffix = str(policy.get("root_prompt_suffix", "")).strip() or None
+
+    print(f"Running policy='{policy_name}' source='{policy_source}' run_id='{run_id}'")
 
     for puzzle_path in puzzle_paths:
         with puzzle_path.open("r", encoding="utf-8") as f:
@@ -232,14 +349,10 @@ def main() -> None:
         gold_answer = answer_key_text(puzzle)
 
         hooks = RunHooks()
-        rlm = create_rlm(hooks)
-        prompt = RLM_PROMPT.format(question=q_string)
+        rlm = create_rlm(hooks, policy)
+        prompt = prompt_template.format(question=q_string)
         try:
-            result: RLMChatCompletion = rlm.completion(
-                prompt,
-                "Remember: your first task is to examine the context and understand the question. "
-                "Do not respond with ERROR until you have seen the full question.",
-            )
+            result: RLMChatCompletion = rlm.completion(prompt, root_prompt_suffix)
         finally:
             rlm.close()
 
@@ -251,6 +364,11 @@ def main() -> None:
         )
 
         output_payload = {
+            "policy": {
+                "name": policy_name,
+                "source": policy_source,
+                "config": policy,
+            },
             "question": puzzle,
             "result": result.to_dict(),
             "answer": result.response,
@@ -259,7 +377,7 @@ def main() -> None:
             "gold_answer_text": gold_answer,
         }
 
-        answer_path = ANSWERS_DIR / puzzle_path.name
+        answer_path = run_answers_dir / puzzle_path.name
         with answer_path.open("w", encoding="utf-8") as f:
             json.dump(output_payload, f, indent=2)
 
@@ -279,9 +397,8 @@ def main() -> None:
             f"finalization={run_metrics.get('finalization_mode')}"
         )
 
-    run_summary = summarize(records)
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    report_path = REPORTS_DIR / f"baseline_summary_{timestamp}.json"
+    run_summary = summarize(records, policy_name=policy_name, policy_source=policy_source, run_id=run_id)
+    report_path = REPORTS_DIR / f"{run_id}_summary.json"
     with report_path.open("w", encoding="utf-8") as f:
         json.dump(
             {
@@ -292,11 +409,11 @@ def main() -> None:
             indent=2,
         )
 
-    print("\nBaseline summary:")
+    print("\nRun summary:")
     print(json.dumps(run_summary, indent=2))
+    print(f"Saved answers to: {run_answers_dir}")
     print(f"Saved summary to: {report_path}")
 
 
 if __name__ == "__main__":
     main()
-
