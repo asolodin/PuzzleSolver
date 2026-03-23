@@ -51,7 +51,7 @@ ANSWERS_DIR.mkdir(parents=True, exist_ok=True)
 REPORTS_DIR.mkdir(parents=True, exist_ok=True)
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 
-RLM_MODEL_NAME = os.getenv("RLM_MODEL_NAME", "gpt-5-mini")
+RLM_MODEL_NAME = os.getenv("RLM_MODEL_NAME", "gpt-5.4-mini")
 JUDGE_MODEL_NAME = os.getenv("RLM_JUDGE_MODEL", "gpt-5.4")
 RLM_EXECUTION_TIMEOUT_SECONDS = float(os.getenv("RLM_EXECUTION_TIMEOUT_SECONDS", "20"))
 RLM_MAX_DEPTH_DEFAULT = int(os.getenv("RLM_MAX_DEPTH", "1"))
@@ -122,6 +122,14 @@ def _safe_name(text: str) -> str:
     return cleaned or "run"
 
 
+def _build_backend_kwargs() -> dict[str, Any]:
+    kwargs: dict[str, Any] = {
+        "model_name": RLM_MODEL_NAME,
+        "api_key": os.getenv("OPENAI_API_KEY"),
+    }
+    return kwargs
+
+
 def _load_policy_from_python_file(path: Path) -> dict[str, Any]:
     if not path.exists():
         raise FileNotFoundError(f"Policy file not found: {path}")
@@ -173,10 +181,7 @@ def create_rlm(run_hooks: RunHooks, policy: dict[str, Any]) -> RLM:
 
     return RLM(
         backend="openai",
-        backend_kwargs={
-            "model_name": RLM_MODEL_NAME,
-            "api_key": os.getenv("OPENAI_API_KEY"),
-        },
+        backend_kwargs=_build_backend_kwargs(),
         environment="docker",
         environment_kwargs={
             "execution_timeout_seconds": RLM_EXECUTION_TIMEOUT_SECONDS,

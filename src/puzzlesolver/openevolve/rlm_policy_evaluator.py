@@ -58,13 +58,13 @@ if SAVE_PUZZLE_OUTPUTS:
     PUZZLE_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 _ALL_STAGE_SPECS: list[tuple[str, int]] = [
-    ("A", int(os.getenv("RLM_POLICY_STAGE_A_SIZE", "1"))),
+    ("A", int(os.getenv("RLM_POLICY_STAGE_A_SIZE", "3"))),
     ("B", int(os.getenv("RLM_POLICY_STAGE_B_SIZE", "7"))),
     ("C", int(os.getenv("RLM_POLICY_STAGE_C_SIZE", "12"))),
 ]
 _ACTIVE_STAGE_NAMES = {
     s.strip().upper()
-    for s in os.getenv("RLM_POLICY_ACTIVE_STAGES", "C").split(",")
+    for s in os.getenv("RLM_POLICY_ACTIVE_STAGES", "A,B,C").split(",")
     if s.strip()
 }
 STAGE_SPECS: list[tuple[str, int]] = [
@@ -84,6 +84,11 @@ ROOT_MODEL_NAME = os.getenv("RLM_POLICY_ROOT_MODEL", os.getenv("RLM_MODEL_NAME",
 JUDGE_MODEL_NAME = os.getenv(
     "RLM_POLICY_JUDGE_MODEL", os.getenv("RLM_JUDGE_MODEL", "gpt-5.4")
 )
+RLM_POLICY_ROOT_TEMPERATURE = os.getenv(
+    "RLM_POLICY_ROOT_TEMPERATURE", os.getenv("RLM_TEMPERATURE", "")
+)
+RLM_POLICY_ROOT_TOP_P = os.getenv("RLM_POLICY_ROOT_TOP_P", os.getenv("RLM_TOP_P", ""))
+RLM_POLICY_ROOT_SEED = os.getenv("RLM_POLICY_ROOT_SEED", os.getenv("RLM_SEED", ""))
 SYSTEM_PROMPT_DELTA_MAX_CHARS = int(os.getenv("RLM_POLICY_SYSTEM_PROMPT_DELTA_MAX_CHARS", "1200"))
 FINAL_VAR_LITERAL_PATTERN = re.compile(r"^\s*FINAL_VAR\((.*?)\)\s*$", re.DOTALL)
 FINAL_VAR_LINE_PATTERN = re.compile(r"^\s*FINAL_VAR\((.*?)\)\s*$", re.MULTILINE | re.DOTALL)
@@ -113,8 +118,9 @@ def _env_flag(name: str, default: bool) -> bool:
     return raw not in {"0", "false", "no", "off"}
 
 
-FAST_DEMO_MODE = _env_flag("RLM_POLICY_FAST_DEMO_MODE", True)
-HARD_GATE_PROTOCOL = _env_flag("RLM_POLICY_HARD_GATE_PROTOCOL", True)
+# Keep policy search focused on a small, interpretable surface.
+LIMITED_GENOME_MODE = _env_flag("RLM_POLICY_LIMITED_GENOME", True)
+HARD_GATE_PROTOCOL = _env_flag("RLM_POLICY_HARD_GATE_PROTOCOL", False)
 HARD_GATE_SCORE_CAP = float(os.getenv("RLM_POLICY_HARD_GATE_SCORE_CAP", "0.02"))
 HARD_GATE_FAILURE_TAGS = {"protocol_parroting", "literal_final_var_output"}
 
@@ -167,6 +173,20 @@ def _normalize(value: float, scale: float) -> float:
 
 def _avg(values: list[float]) -> float:
     return (sum(values) / len(values)) if values else 0.0
+
+
+def _build_root_backend_kwargs() -> dict[str, Any]:
+    kwargs: dict[str, Any] = {
+        "model_name": ROOT_MODEL_NAME,
+        "api_key": os.getenv("OPENAI_API_KEY"),
+    }
+    if RLM_POLICY_ROOT_TEMPERATURE.strip() != "":
+        kwargs["temperature"] = float(RLM_POLICY_ROOT_TEMPERATURE)
+    if RLM_POLICY_ROOT_TOP_P.strip() != "":
+        kwargs["top_p"] = float(RLM_POLICY_ROOT_TOP_P)
+    if RLM_POLICY_ROOT_SEED.strip() != "":
+        kwargs["seed"] = int(RLM_POLICY_ROOT_SEED)
+    return kwargs
 
 
 def _extract_final_var_name(text: str) -> str | None:
@@ -300,6 +320,13 @@ def _safe_label(value: str, max_len: int = 48) -> str:
     return cleaned[:max_len]
 
 
+def _truncate_text(value: str, max_chars: int) -> str:
+    collapsed = " ".join(str(value).split())
+    if len(collapsed) <= max_chars:
+        return collapsed
+    return collapsed[: max_chars - 3].rstrip() + "..."
+
+
 def _make_eval_output_dir(program_path: str, policy_name: str) -> Path | None:
     if not SAVE_PUZZLE_OUTPUTS:
         return None
@@ -365,38 +392,40 @@ def _load_policy(program_path: str) -> dict[str, Any]:
     return policy
 
 
-def _apply_fast_demo_policy_constraints(policy: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
-    if not FAST_DEMO_MODE:
-        return policy, {"fast_demo_mode": False, "locked_fields": []}
-
+def _apply_policy_constraints(policy: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
     constrained = dict(policy)
-    locked_fields = [
-        "root_prompt_template",
-        "max_depth",
-        "max_iterations",
-        "stage_budgets",
-        "judge_pass_threshold",
-        "score_weights",
-        "failure_tag_weights",
-        "norm_scales",
+    evolvable_fields = [
+        "name",
+        "root_prompt_suffix",
+        "custom_system_prompt_delta",
+        "recovery_var_candidates",
     ]
-    constrained["root_prompt_template"] = FIXED_ROOT_PROMPT_TEMPLATE
-    constrained["max_depth"] = 1
-    constrained["max_iterations"] = int(FIXED_STAGE_BUDGETS["A"]["max_iterations"])
-    constrained["stage_budgets"] = FIXED_STAGE_BUDGETS
-    constrained["judge_pass_threshold"] = 0.95
-    constrained["score_weights"] = FIXED_SCORE_WEIGHTS
-    constrained["failure_tag_weights"] = FIXED_FAILURE_TAG_WEIGHTS
-    constrained["norm_scales"] = FIXED_NORM_SCALES
+    locked_fields: list[str] = []
+
+    if LIMITED_GENOME_MODE:
+        locked_fields = [
+            "root_prompt_template",
+            "max_depth",
+            "max_iterations",
+            "stage_budgets",
+            "judge_pass_threshold",
+            "score_weights",
+            "failure_tag_weights",
+            "norm_scales",
+        ]
+        constrained["root_prompt_template"] = FIXED_ROOT_PROMPT_TEMPLATE
+        constrained["max_depth"] = 1
+        constrained["max_iterations"] = int(FIXED_STAGE_BUDGETS["A"]["max_iterations"])
+        constrained["stage_budgets"] = FIXED_STAGE_BUDGETS
+        constrained["judge_pass_threshold"] = 0.95
+        constrained["score_weights"] = FIXED_SCORE_WEIGHTS
+        constrained["failure_tag_weights"] = FIXED_FAILURE_TAG_WEIGHTS
+        constrained["norm_scales"] = FIXED_NORM_SCALES
+
     return constrained, {
-        "fast_demo_mode": True,
+        "limited_genome_mode": LIMITED_GENOME_MODE,
         "locked_fields": locked_fields,
-        "evolvable_fields": [
-            "name",
-            "root_prompt_suffix",
-            "custom_system_prompt_delta",
-            "recovery_var_candidates",
-        ],
+        "evolvable_fields": evolvable_fields,
     }
 
 
@@ -480,10 +509,7 @@ def _run_single_puzzle(
 
     rlm = RLM(
         backend="openai",
-        backend_kwargs={
-            "model_name": ROOT_MODEL_NAME,
-            "api_key": os.getenv("OPENAI_API_KEY"),
-        },
+        backend_kwargs=_build_root_backend_kwargs(),
         environment="docker",
         environment_kwargs={
             "execution_timeout_seconds": 10,
@@ -513,8 +539,12 @@ def _run_single_puzzle(
         recovery_var_candidates=[str(v) for v in recovery_var_candidates],
     )
 
+    question_for_judge = question_text_only(puzzle).strip() or json.dumps(
+        format_question(puzzle),
+        ensure_ascii=True,
+    )
     judge_raw = judge.judge(
-        problem_statement=question_text_only(puzzle),
+        problem_statement=question_for_judge,
         gold_answer=answer_key_text(puzzle),
         candidate_answer=result.response,
     )
@@ -538,7 +568,7 @@ def _run_single_puzzle(
     if should_attempt_recovery and recovered_answer:
         recovery_attempted = 1.0
         judge_recovered = judge.judge(
-            problem_statement=question_text_only(puzzle),
+            problem_statement=question_for_judge,
             gold_answer=answer_key_text(puzzle),
             candidate_answer=recovered_answer,
         )
@@ -562,6 +592,7 @@ def _run_single_puzzle(
 
     return {
         "puzzle_id": puzzle.get("number"),
+        "question_text": question_for_judge,
         "answer": effective_answer,
         "answer_raw": result.response,
         "answer_recovered": recovered_answer or "",
@@ -703,6 +734,32 @@ def _summarize_failure_diagnostics(
     return tag_counts, examples
 
 
+def _build_mutator_feedback(records: list[dict[str, Any]], max_items: int = 5) -> list[dict[str, Any]]:
+    ranked = sorted(
+        records,
+        key=lambda record: float(record.get("judge", {}).get("correctness", 0.0)),
+    )
+    selected = ranked[: min(max_items, len(ranked))]
+
+    feedback: list[dict[str, Any]] = []
+    for record in selected:
+        feedback.append(
+            {
+                "puzzle_id": record.get("puzzle_id"),
+                "question": _truncate_text(str(record.get("question_text", "")), 900),
+                "solver_answer": _truncate_text(str(record.get("answer_raw", "")), 900),
+                "score": float(record.get("judge", {}).get("correctness", 0.0)),
+                "is_correct": bool(record.get("judge", {}).get("is_correct", False)),
+                "failure_tags": list(record.get("run_metrics", {}).get("failure_tags", [])),
+                "judge_reasoning": _truncate_text(
+                    str(record.get("judge", {}).get("reasoning", "")),
+                    700,
+                ),
+            }
+        )
+    return feedback
+
+
 def _load_puzzles() -> list[dict[str, Any]]:
     puzzle_paths = sorted(PUZZLES_DIR.glob("*.json"))
     puzzles: list[dict[str, Any]] = []
@@ -734,19 +791,19 @@ def evaluate(program_path: str) -> dict[str, Any]:
 
     eval_started = time.time()
     policy_raw = _load_policy(program_path)
-    policy, policy_constraints = _apply_fast_demo_policy_constraints(policy_raw)
+    policy, policy_constraints = _apply_policy_constraints(policy_raw)
     judge = LLMJudge(JUDGE_MODEL_NAME)
     eval_output_dir = _make_eval_output_dir(program_path, str(policy.get("name", "policy")))
     LOGGER.info(
-        "Starting policy evaluation: policy=%s output_dir=%s stages=%s fast_demo_mode=%s",
+        "Starting policy evaluation: policy=%s output_dir=%s stages=%s limited_genome_mode=%s",
         str(policy.get("name", "")),
         str(eval_output_dir) if eval_output_dir else "(disabled)",
         STAGE_SPECS,
-        FAST_DEMO_MODE,
+        LIMITED_GENOME_MODE,
     )
-    if policy_constraints.get("fast_demo_mode"):
+    if policy_constraints.get("limited_genome_mode"):
         LOGGER.info(
-            "Fast demo constraints active: evolvable=%s locked=%s",
+            "Policy constraints active: evolvable=%s locked=%s",
             policy_constraints.get("evolvable_fields", []),
             policy_constraints.get("locked_fields", []),
         )
@@ -788,6 +845,8 @@ def evaluate(program_path: str) -> dict[str, Any]:
             except Exception as exc:
                 record = {
                     "puzzle_id": puzzle.get("number"),
+                    "question_text": question_text_only(puzzle).strip()
+                    or json.dumps(format_question(puzzle), ensure_ascii=True),
                     "answer": "",
                     "answer_raw": "",
                     "answer_recovered": "",
@@ -845,7 +904,8 @@ def evaluate(program_path: str) -> dict[str, Any]:
     final_stage = list(stage_metrics.keys())[-1]
     final_score = stage_metrics[final_stage]
     elapsed = time.time() - eval_started
-    failure_tag_counts, failure_examples = _summarize_failure_diagnostics(all_records, max_examples=2)
+    failure_tag_counts, _failure_examples = _summarize_failure_diagnostics(all_records, max_examples=2)
+    mutator_feedback = _build_mutator_feedback(all_records, max_items=5)
 
     metrics = {
         "combined_score": final_score["combined_score"],
@@ -872,14 +932,11 @@ def evaluate(program_path: str) -> dict[str, Any]:
     metrics["root_model"] = ROOT_MODEL_NAME
     metrics["judge_model"] = JUDGE_MODEL_NAME
     metrics["stopped_stage"] = stopped_stage or ""
-    metrics["stage_metrics_json"] = json.dumps(stage_metrics)
-    metrics["sample_records_json"] = json.dumps(all_records[: min(5, len(all_records))])
     metrics["failure_tag_counts_json"] = json.dumps(failure_tag_counts, sort_keys=True)
-    metrics["failure_examples_json"] = json.dumps(failure_examples)
+    metrics["mutator_feedback_json"] = json.dumps(mutator_feedback, ensure_ascii=True)
     metrics["puzzle_output_dir"] = str(eval_output_dir) if eval_output_dir else ""
     metrics["hint_primary"] = hint_primary
     metrics["hint_tag"] = hint_tag
-    metrics["policy_constraints_json"] = json.dumps(policy_constraints)
     LOGGER.info(
         "Evaluation complete: policy=%s score=%.4f hint_tag=%s hard_gate=%s",
         metrics["policy_name"],

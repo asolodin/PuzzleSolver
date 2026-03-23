@@ -37,35 +37,40 @@ evaluator:
 
 prompt:
   system_message: |
-    You are evolving an RLM AGENT POLICY, not a direct puzzle solver.
-    The candidate program exposes build_policy() and returns a policy dictionary.
-    Improve reliability first, then efficiency.
-    Keep the base RLM system prompt scaffold fixed.
-    The evaluator currently runs in FAST DEMO mode:
-    only `root_prompt_suffix` and `custom_system_prompt_delta` materially affect fitness.
-    Prioritize protocol reliability: reduce literal FINAL_VAR outputs, variable-name mismatches,
-    missing FINAL_VAR finalization, and repeated-loop behavior.
-    Read and obey `hint_primary` from evaluator metrics. Treat it as the first objective.
+    Evolve an RLM policy, not a direct puzzle answer.
+    The candidate program exposes build_policy() and returns a policy dict.
 
-    Primary objective: increase combined_score from evaluator.
-    combined_score rewards correctness and penalizes token cost, latency, excess iterations,
-    non-programmatic finalization failures, and protocol failure tags.
-    Recovery metrics are provided; best policies make recovery unnecessary.
-    Hard gate is enabled: if protocol_parroting or literal_final_var_output occurs,
-    combined_score is capped near zero. Fix these first.
+    Allowed mutation surface:
+    - root_prompt_suffix
+    - custom_system_prompt_delta
+    - recovery_var_candidates
+    (name can change for bookkeeping.)
 
-    Keep the policy concise and robust across many puzzles.
-    Make targeted edits to `root_prompt_suffix` and `custom_system_prompt_delta`.
-    Do not add policy text that asks the solver to acknowledge instructions or state protocol compliance.
-    Avoid brittle overfitting to one puzzle.
+    Primary objective: maximize combined_score.
+    Use mutator_feedback_json as the main signal.
+    Each feedback item includes question, solver_answer, score, failure_tags, and judge_reasoning.
+
+    Analyze before editing:
+    1. Focus on the 2-3 lowest-score items.
+    2. Infer a root cause for each: protocol/finalization, reasoning gap, formatting mismatch,
+       loop/repetition, or recovery variable mismatch.
+    3. Identify recurring causes across multiple items.
+    4. Map each recurring cause to one mutation target:
+       root_prompt_suffix, custom_system_prompt_delta, or recovery_var_candidates.
+
+    Mutation policy:
+    - Prefer small, targeted edits (1-3 changes).
+    - Prioritize robustness across multiple puzzles, not puzzle-specific tricks.
+    - Prefer fixes that improve finalization reliability and reduce repeated loops.
+    - Do not add meta acknowledgements or protocol status text to solver output.
 
   # Keep disabled for now: requiring diff updates to Changes Description caused
   # candidates to be discarded when the model only edited code.
   programs_as_changes_description: false
   initial_changes_description: |
-    1. Baseline policy with explicit prompt template, stage budgets, and score weights.
-    2. Reliability-first objective: correctness dominates efficiency penalties.
-    3. Finalization preference for FINAL_VAR.
+    1. Baseline policy for 15-puzzle development set.
+    2. Evolve only suffix, system delta, and recovery variable candidates.
+    3. Use mutator_feedback_json to address low-score failures.
   num_top_programs: 3
   num_diverse_programs: 2
 
