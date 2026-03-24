@@ -28,13 +28,6 @@ def build_policy() -> dict[str, Any]:
             "4) Finalize only with FINAL_VAR(final_answer).\n"
             "5) Never output literal FINAL_VAR(...) as plain text."
         ),
-        "recovery_var_candidates": [
-            "final_answer",
-            "final_response",
-            "answer",
-            "result",
-            "final_decision",
-        ],
     }
 
 

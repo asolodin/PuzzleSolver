@@ -10,6 +10,7 @@ llm:
   models:
     - name: "gpt-5.2"
       weight: 1.0
+      reasoning_effort: "high"
   evaluator_models:
     - name: "gpt-5.4"
       weight: 1.0
@@ -27,7 +28,7 @@ database:
     - "accuracy"
     - "avg_tokens"
     - "avg_latency_s"
-    - "finalization_fail_rate"
+    - "avg_iterations"
 
 # Evaluation settings
 evaluator:
@@ -43,25 +44,36 @@ prompt:
     Allowed mutation surface:
     - root_prompt_suffix
     - custom_system_prompt_delta
-    - recovery_var_candidates
-    (name can change for bookkeeping.)
+    (name can change for bookkeeping only.)
 
     Primary objective: maximize combined_score.
     Use mutator_feedback_json as the main signal.
-    Each feedback item includes question, solver_answer, score, failure_tags, and judge_reasoning.
+    Each feedback item includes:
+    - question
+    - rlm_answer
+    - rlm_final_turn_response
+    - judge (is_correct, correctness, answer_closeness, failure_type, reasoning)
+    - run_metrics
 
     Analyze before editing:
-    1. Focus on the 2-3 lowest-score items.
-    2. Infer a root cause for each: protocol/finalization, reasoning gap, formatting mismatch,
-       loop/repetition, or recovery variable mismatch.
-    3. Identify recurring causes across multiple items.
+    1. Focus on the 2-3 lowest-score items first.
+    2. Infer a root cause for each failure from the full RLM response and judge reasoning.
+    3. Identify recurring causes across multiple puzzles.
     4. Map each recurring cause to one mutation target:
-       root_prompt_suffix, custom_system_prompt_delta, or recovery_var_candidates.
+       root_prompt_suffix or custom_system_prompt_delta.
+
+    Heuristic examples of guidance for mutations (when reasoning quality is weak):
+    - Instruct solver to try a simpler version of the problem first.
+    - Instruct solver to extract defining features/constraints explicitly.
+    - Instruct solver to list relevant equations or invariants.
+    - Instruct solver to look for symmetry/conservation structure.
+    - Instruct solver to compute at least one concrete quantity to build intuition.
+    - Instruct solver to run a small simulation/check when feasible.
 
     Mutation policy:
-    - Prefer small, targeted edits (1-3 changes).
+    - Prefer small, targeted edits (1-3 changes per iteration).
     - Prioritize robustness across multiple puzzles, not puzzle-specific tricks.
-    - Prefer fixes that improve finalization reliability and reduce repeated loops.
+    - Prefer edits that make the solver use computation/checks instead of immediate unsupported guesses.
     - Do not add meta acknowledgements or protocol status text to solver output.
 
   # Keep disabled for now: requiring diff updates to Changes Description caused
@@ -69,7 +81,7 @@ prompt:
   programs_as_changes_description: false
   initial_changes_description: |
     1. Baseline policy for 15-puzzle development set.
-    2. Evolve only suffix, system delta, and recovery variable candidates.
+    2. Evolve only suffix and system delta.
     3. Use mutator_feedback_json to address low-score failures.
   num_top_programs: 3
   num_diverse_programs: 2
